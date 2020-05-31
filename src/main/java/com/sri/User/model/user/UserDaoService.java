@@ -3,6 +3,7 @@ package com.sri.User.model.user;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -16,8 +17,8 @@ public class UserDaoService {
 	private static List<User> listofusers = new ArrayList<User>();
 
 	static {
-	List<Message>	listofmessages=new ArrayList<Message>();
-	listofmessages.add(new Message(1,"u1",new Date()));
+		List<Message> listofmessages = new ArrayList<Message>();
+		listofmessages.add(new Message(1, "u1", new Date()));
 		listofusers.add(new User(1, "sri", "sri", listofmessages));
 		listofusers
 				.add(new User(2, "sri2", "sri2", Arrays.asList(new Message(1, "This is firstMessage u2", new Date()))));
@@ -44,6 +45,21 @@ public class UserDaoService {
 		return user;
 	}
 
+	public User deleteUser(int id) {
+		Iterator<User> iterator = listofusers.iterator();
+
+		while (iterator.hasNext()) {
+			User user = iterator.next();
+
+			if (user.getId() == id) {
+				iterator.remove();
+			}
+			return user;
+		}
+
+		return null;
+	}
+
 	public List<Message> getUserMessagesbyId(int id) {
 
 		for (User u : listofusers) {
@@ -67,12 +83,12 @@ public class UserDaoService {
 		}
 		return null;
 	}
-	
-	public void addMessage(int userid,Message message) {
-		
-		for(User u:listofusers) {
-			if(u.getId()==userid) {
-				message.setMessageid(u.getUsermessage().size()+1);
+
+	public void addMessage(int userid, Message message) {
+
+		for (User u : listofusers) {
+			if (u.getId() == userid) {
+				message.setMessageid(u.getUsermessage().size() + 1);
 //				List<Message> usermessage = u.getUsermessage() ; 
 				u.getUsermessage().add(message);
 //				System.out.println(message);

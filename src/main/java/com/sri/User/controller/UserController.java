@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,12 +19,16 @@ import org.springframework.web.util.UriComponents;
 import com.sri.User.message.Message;
 import com.sri.User.model.user.User;
 import com.sri.User.model.user.UserDaoService;
+import com.sri.User.model.user.UserRepository;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
 //	List<User> listofusers=new ArrayList<User>();
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private UserDaoService userService;
@@ -61,29 +66,43 @@ public class UserController {
 		URI createdLocation = ServletUriComponentsBuilder.fromCurrentContextPath().path("user/{id}")
 				.buildAndExpand(addUser.getId()).toUri();
 
+		User save = userRepository.save(u);
+
+		System.out.println(save);
+
 		return ResponseEntity.created(createdLocation).build();
 
+	}
+
+	@DeleteMapping(path = "/delete/{id}")
+	public ResponseEntity<User> deleteUser(@PathVariable("id") int id) {
+		User deleteUser = userService.deleteUser(id);
+		if (deleteUser == null) {
+			throw new UserNotFoundException("No such user found with given Id \t" + id);
+		}
+		return new ResponseEntity<User>(deleteUser, HttpStatus.OK);
 	}
 
 	@GetMapping("{id}/messages/all")
 	public ResponseEntity<List<Message>> userComments(@PathVariable("id") int id) {
 		List<Message> userMessagesbyId = userService.getUserMessagesbyId(id);
-		
-		return new ResponseEntity<List<Message>>(userMessagesbyId,HttpStatus.FOUND);
-		
+
+		return new ResponseEntity<List<Message>>(userMessagesbyId, HttpStatus.FOUND);
+
 	}
-	
+
 	@GetMapping("{id}/messages/{messageid}")
-	public ResponseEntity<Message> usercommentsbymessageid(@PathVariable("id") int userid,@PathVariable("messageid") int messageid) {
+	public ResponseEntity<Message> usercommentsbymessageid(@PathVariable("id") int userid,
+			@PathVariable("messageid") int messageid) {
 		Message userMessagebyMessageId = userService.getUserMessagebyMessageId(userid, messageid);
-		
-		return new ResponseEntity<Message>(userMessagebyMessageId,HttpStatus.FOUND);
+
+		return new ResponseEntity<Message>(userMessagebyMessageId, HttpStatus.FOUND);
 	}
-	
+
 	@PostMapping("{userid}/messages/addmessage")
-	public String addMessage(@PathVariable("userid") int id,@RequestBody Message message) {
+	public String addMessage(@PathVariable("userid") int id, @RequestBody Message message) {
 		userService.addMessage(id, message);
-		
+
 		return "redirect:/{userid}/messages/all";
 	}
 

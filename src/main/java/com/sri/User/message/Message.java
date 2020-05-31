@@ -2,12 +2,20 @@ package com.sri.User.message;
 
 import java.util.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class Message {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int messageid;
 	private String message;
 	private Date datecreated;
-	
+
 	public Message() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -48,7 +56,5 @@ public class Message {
 	public String toString() {
 		return "Message [messageid=" + messageid + ", message=" + message + ", datecreated=" + datecreated + "]";
 	}
-	
-	
-	
+
 }
