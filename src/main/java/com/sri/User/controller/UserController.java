@@ -2,6 +2,7 @@ package com.sri.User.controller;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
 
 import com.sri.User.message.Message;
+import com.sri.User.message.MessageRespository;
 import com.sri.User.model.user.User;
 import com.sri.User.model.user.UserDaoService;
 import com.sri.User.model.user.UserRepository;
@@ -29,6 +31,9 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private MessageRespository messageRepository;
 
 	@Autowired
 	private UserDaoService userService;
@@ -49,12 +54,16 @@ public class UserController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<User> getaUser(@PathVariable("id") int id) {
-		User user = userService.getUserbyId(id);
+//		User user = userService.getUserbyId(id);
 
-		if (user == null) {
+		Optional<User> findById = userRepository.findById(id);
+
+//		System.out.println("Here is the user with id \t"+findById.get());
+
+		if (findById.get() == null) {
 			throw new UserNotFoundException("No such user found with given Id \t" + id);
 		}
-		return new ResponseEntity<User>(user, HttpStatus.FOUND);
+		return new ResponseEntity<User>(findById.get(), HttpStatus.FOUND);
 	}
 
 	@PostMapping("/createUser")
@@ -63,12 +72,12 @@ public class UserController {
 		User addUser = userService.AddUser(u);
 //      URI createdLocation = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(addUser.getId()).toUri();
 
-		URI createdLocation = ServletUriComponentsBuilder.fromCurrentContextPath().path("user/{id}")
-				.buildAndExpand(addUser.getId()).toUri();
-
 		User save = userRepository.save(u);
 
-		System.out.println(save);
+		URI createdLocation = ServletUriComponentsBuilder.fromCurrentContextPath().path("user/{id}")
+				.buildAndExpand(save.getId()).toUri();
+
+//		System.out.println(save);
 
 		return ResponseEntity.created(createdLocation).build();
 
@@ -77,6 +86,9 @@ public class UserController {
 	@DeleteMapping(path = "/delete/{id}")
 	public ResponseEntity<User> deleteUser(@PathVariable("id") int id) {
 		User deleteUser = userService.deleteUser(id);
+
+		userRepository.deleteById(id);
+
 		if (deleteUser == null) {
 			throw new UserNotFoundException("No such user found with given Id \t" + id);
 		}
