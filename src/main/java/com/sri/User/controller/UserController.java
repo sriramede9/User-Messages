@@ -49,7 +49,9 @@ public class UserController {
 	@GetMapping("/all")
 	public ResponseEntity<List<User>> getUsers() {
 
-		return new ResponseEntity<List<User>>(userService.getAllUsers(), HttpStatus.OK);
+		List<User> allUsers = userRepository.findAll();
+
+		return new ResponseEntity<List<User>>(allUsers, HttpStatus.OK);
 	}
 
 	@GetMapping("/{id}")
@@ -69,7 +71,7 @@ public class UserController {
 	@PostMapping("/createUser")
 	public ResponseEntity<User> createUser(@RequestBody User u) {
 
-		User addUser = userService.AddUser(u);
+//		User addUser = userService.AddUser(u);
 //      URI createdLocation = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(addUser.getId()).toUri();
 
 		User save = userRepository.save(u);
@@ -97,25 +99,42 @@ public class UserController {
 
 	@GetMapping("{id}/messages/all")
 	public ResponseEntity<List<Message>> userComments(@PathVariable("id") int id) {
-		List<Message> userMessagesbyId = userService.getUserMessagesbyId(id);
+//		List<Message> userMessagesbyId = userService.getUserMessagesbyId(id);
 
-		return new ResponseEntity<List<Message>>(userMessagesbyId, HttpStatus.FOUND);
+		List<Message> usermessage = userRepository.findById(id).get().getUsermessage();
+
+		return new ResponseEntity<List<Message>>(usermessage, HttpStatus.FOUND);
 
 	}
 
 	@GetMapping("{id}/messages/{messageid}")
 	public ResponseEntity<Message> usercommentsbymessageid(@PathVariable("id") int userid,
 			@PathVariable("messageid") int messageid) {
-		Message userMessagebyMessageId = userService.getUserMessagebyMessageId(userid, messageid);
+//		Message userMessagebyMessageId = userService.getUserMessagebyMessageId(userid, messageid);
 
-		return new ResponseEntity<Message>(userMessagebyMessageId, HttpStatus.FOUND);
+		List<Message> messages = userRepository.findById(userid).get().getUsermessage();
+
+		Message M = null;
+
+		for (Message m : messages) {
+			if (m.getMessageid() == messageid) {
+				M = m;
+			}
+		}
+
+		return new ResponseEntity<Message>(M, HttpStatus.FOUND);
 	}
 
 	@PostMapping("{userid}/messages/addmessage")
 	public String addMessage(@PathVariable("userid") int id, @RequestBody Message message) {
-		userService.addMessage(id, message);
+//		userService.addMessage(id, message);
+		User u = userRepository.findById(id).get();
 
-		return "redirect:/{userid}/messages/all";
+		u.getUsermessage().add(message);
+
+		userRepository.save(u);
+
+		return "redirect:/" + id + "/messages/all";
 	}
 
 }

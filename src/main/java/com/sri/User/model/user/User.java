@@ -31,7 +31,7 @@ public class User {
 	 * = @JoinColumn(name="message_id"))
 	 */
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id",nullable = false)
 	private List<Message> usermessage = new ArrayList<Message>();
 
 	public User(int id, String username, String password, List<Message> usermessage) {
