@@ -1,6 +1,9 @@
 # User-Messages
 A brief revise
 
+
+# Follow Swagger Documentation at `http://localhost:8091/swagger-ui.html`
+
 # sample data to create user
 
 http://localhost:8091/user/createUser
